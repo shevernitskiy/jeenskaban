@@ -1,0 +1,23 @@
+# Workaround
+/.vscode
+
+# Yarn, NPM
+/node_modules
+/build
+
+# Yarn 2
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Env
+.env
+kabanenv
+testenv
+
+#Tests
+/__tests__
