@@ -21,3 +21,4 @@ testenv
 
 #Tests
 /__tests__
+/src/check.ts

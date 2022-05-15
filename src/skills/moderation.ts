@@ -1,6 +1,7 @@
 import { IConfig, ILogger } from '../types/interfaces'
 import TelegramBot from 'node-telegram-bot-api'
 import axios from 'axios'
+import moment from 'moment'
 
 export default class Moderation {
   private readonly _tag = 'moderation'
@@ -107,14 +108,25 @@ export default class Moderation {
 
       if (ctx.text.startsWith('/mute') && ctx.reply_to_message != undefined) {
         const reason = ctx.text.split(' ')
+        reason.shift()
+        let until = 0
 
-        this.mute(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id).then((result) => {
+        if (reason.length > 0) {
+          const match = reason[0]?.match(/([0-9]*д|[0-9]*ч|[0-9]*м)/gm)
+          if (match !== null && match?.length > 0) {
+            until = this.until(match as string[]).unix()
+            reason.shift()
+          }
+        }
+
+        this.mute(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id, until).then((result) => {
           if (result) {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
               [
                 `🤐 ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} замьючен`,
-                `${reason.length > 1 ? 'Причина: ' + ctx.text.replace(reason[0], '').trim() : 'Без причины'}`
+                `${reason.length > 0 ? `Причина: ${reason}` : 'Без причины'}`,
+                `${until > moment().unix() ? `На: ${ctx.text.split(' ')[1]}` : 'Навсегда'}`
               ].join('\n'),
               options
             )
@@ -166,7 +178,25 @@ export default class Moderation {
     return this._admins.includes(userId)
   }
 
-  async mute(userId: number | string, chatId: number, clearId?: number): Promise<boolean> {
+  until(match: string[]): moment.Moment {
+    const date = moment()
+
+    match.forEach((item) => {
+      if (item.includes('д')) {
+        date.add(Number(item.replace('д', '')), 'd')
+      }
+      if (item.includes('ч')) {
+        date.add(Number(item.replace('ч', '')), 'h')
+      }
+      if (item.includes('м')) {
+        date.add(Number(item.replace('м', '')), 'm')
+      }
+    })
+
+    return date
+  }
+
+  async mute(userId: number | string, chatId: number, clearId?: number, until = 0): Promise<boolean> {
     this._log.log(this._tag, `mute user ${userId} in ${chatId}`)
 
     if (clearId != undefined) {
@@ -181,7 +211,8 @@ export default class Moderation {
       can_change_info: false,
       can_pin_messages: false,
       can_send_other_messages: false,
-      can_send_polls: false
+      can_send_polls: false,
+      until_date: until
     })
   }
 
