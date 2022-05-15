@@ -20,7 +20,7 @@ if (process.env.ADMINS) {
   let extraAdmins: number[] = []
   extraAdmins = JSON.parse(process.env.ADMINS)
   Config.admins = extraAdmins
-  Logger.sys('config', `extra admins added ${extraAdmins.join('\n')}`)
+  Logger.sys('config', `extra admins added ${extraAdmins.join(', ')}`)
 }
 
 const bot = new TelegramBot(process.env.TELEGRAM, { polling: true })

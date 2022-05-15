@@ -42,6 +42,10 @@ export default class Moderation {
         options.reply_to_message_id = ctx.reply_to_message.message_id
       }
 
+      if (ctx.text == undefined) {
+        ctx.text = ''
+      }
+
       /* ---------------------------- Rules on new post --------------------------- */
 
       if (ctx.from.id == 777000 && ctx.from.first_name == 'Telegram' && ctx.is_automatic_forward == true) {
@@ -258,7 +262,6 @@ export default class Moderation {
         }
       })
       .then(({ data }) => {
-        console.log(data)
         const out = [`Скоуп: <b>${type}</b> | <b>${chatId}</b>`]
 
         data.result.forEach((item) => {
