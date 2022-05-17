@@ -23,13 +23,8 @@ export default class Moderation {
   }
 
   async init(): Promise<void> {
-    this.loadAdmins(this._chatId, this._config.admins).then((result) => {
-      this._admins = result
-    })
-
-    this.loadPermissions(this._chatId).then((result) => {
-      this._permissions = result
-    })
+    this._admins = await this.loadAdmins(this._chatId, this._config.admins)
+    this._permissions = await this.loadPermissions(this._chatId)
 
     this.setCommands(this._token, this._chatId, 'chat_administrators', this._config.commands.admin)
     this.setCommands(this._token, this._chatId, 'chat', this._config.commands.user)
