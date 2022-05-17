@@ -1,10 +1,12 @@
-interface ILogger {
+import { TelegramCommand } from './types'
+
+export interface ILogger {
   log(title: string, value?: string | number): void
   sys(title: string, value?: string | number): void
   err(title: string, value?: string | number | Error): void
 }
 
-interface IConfig {
+export interface IConfig {
   rules: string
   commands: {
     user: TelegramCommand[]

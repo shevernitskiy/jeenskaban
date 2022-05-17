@@ -1,18 +1,20 @@
 import TelegramBot from 'node-telegram-bot-api'
 import axios from 'axios'
 import moment from 'moment'
+import { ILogger, IConfig } from '../types/interfaces'
+import { UserId, ChatId, MessageId } from '../types/types'
 
 export default class Moderation {
   private readonly _tag = 'moderation'
   private readonly _log: ILogger
   private readonly _bot: TelegramBot
-  private readonly _chatId: number
+  private readonly _chatId: ChatId
   private readonly _token: string
   private readonly _config: IConfig
   private _permissions: TelegramBot.ChatPermissions
-  private _admins: (number | string)[]
+  private _admins: UserId[]
 
-  constructor(bot: TelegramBot, config: IConfig, logger: ILogger, chatId: number, token: string) {
+  constructor(bot: TelegramBot, config: IConfig, logger: ILogger, chatId: ChatId, token: string) {
     this._bot = bot
     this._log = logger
     this._chatId = chatId
@@ -183,7 +185,7 @@ export default class Moderation {
     }
   }
 
-  isAdmin(userId: number | string): boolean {
+  isAdmin(userId: UserId): boolean {
     return this._admins.includes(userId)
   }
 
@@ -209,7 +211,7 @@ export default class Moderation {
     return date
   }
 
-  async mute(userId: number | string, chatId: number, clearId?: number, until = 0): Promise<boolean> {
+  async mute(userId: UserId, chatId: ChatId, clearId?: MessageId, until = 0): Promise<boolean> {
     this._log.log(this._tag, `mute user ${userId} in ${chatId}`)
 
     if (clearId != undefined) {
@@ -229,7 +231,7 @@ export default class Moderation {
     })
   }
 
-  async unmute(userId: number | string, chatId: number, clearId?: number, permissions?: TelegramBot.ChatPermissions): Promise<boolean> {
+  async unmute(userId: UserId, chatId: ChatId, clearId?: MessageId, permissions?: TelegramBot.ChatPermissions): Promise<boolean> {
     this._log.log(this._tag, `unmute user ${userId} in ${chatId}`)
 
     if (clearId != undefined) {
@@ -255,7 +257,7 @@ export default class Moderation {
     return this._bot.restrictChatMember(chatId, String(userId), opts)
   }
 
-  async unban(userId: number, chatId: number, clearId?: number): Promise<boolean> {
+  async unban(userId: UserId, chatId: ChatId, clearId?: MessageId): Promise<boolean> {
     this._log.log(this._tag, `unban user ${userId} in ${chatId}`)
 
     if (clearId != undefined) {
@@ -265,7 +267,7 @@ export default class Moderation {
     return this._bot.unbanChatSenderChat(chatId, String(userId))
   }
 
-  async ban(userId: number, chatId: number, clearId?: number): Promise<boolean> {
+  async ban(userId: UserId, chatId: ChatId, clearId?: MessageId): Promise<boolean> {
     this._log.log(this._tag, `ban user ${userId} in ${chatId}`)
 
     if (clearId != undefined) {
@@ -275,11 +277,11 @@ export default class Moderation {
     return this._bot.banChatSenderChat(chatId, String(userId))
   }
 
-  async loadAdmins(chatId: number, extra: number[] = []): Promise<number[]> {
+  async loadAdmins(chatId: ChatId, extra: UserId[] = []): Promise<UserId[]> {
     this._log.log(this._tag, `load admins from chat ${chatId}`)
 
     return this._bot.getChatAdministrators(chatId).then((res) => {
-      const out: number[] = []
+      const out: UserId[] = []
 
       res.forEach((item) => {
         out.push(item.user.id)
@@ -289,7 +291,7 @@ export default class Moderation {
     })
   }
 
-  async loadPermissions(chatId: number): Promise<TelegramBot.ChatPermissions> {
+  async loadPermissions(chatId: ChatId): Promise<TelegramBot.ChatPermissions> {
     this._log.log(this._tag, `load chat permissions from chat ${chatId}`)
 
     return this._bot.getChat(chatId).then(({ permissions }) => {
@@ -297,7 +299,7 @@ export default class Moderation {
     })
   }
 
-  async getCommands(token: string, chatId: number, type: 'chat' | 'chat_administrators'): Promise<string[]> {
+  async getCommands(token: string, chatId: ChatId, type: 'chat' | 'chat_administrators'): Promise<string[]> {
     return axios
       .post(`https://api.telegram.org/bot${token}/getMyCommands`, {
         scope: {
@@ -323,7 +325,7 @@ export default class Moderation {
 
   async setCommands(
     token: string,
-    chatId: number,
+    chatId: ChatId,
     type: 'chat' | 'chat_administrators',
     commands: TelegramBot.BotCommand[],
   ): Promise<boolean> {
