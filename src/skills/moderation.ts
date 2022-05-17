@@ -1,4 +1,3 @@
-import { IConfig, ILogger } from '../types/interfaces'
 import TelegramBot from 'node-telegram-bot-api'
 import axios from 'axios'
 import moment from 'moment'
@@ -20,6 +19,10 @@ export default class Moderation {
     this._token = token
     this._config = config
 
+    this.init()
+  }
+
+  async init(): Promise<void> {
     this.loadAdmins(this._chatId, this._config.admins).then((result) => {
       this._admins = result
     })
@@ -176,6 +179,10 @@ export default class Moderation {
 
   isAdmin(userId: number | string): boolean {
     return this._admins.includes(userId)
+  }
+
+  isPrivate(ctx: TelegramBot.Message): boolean {
+    return ctx.from.id == ctx.chat.id
   }
 
   until(match: string[]): moment.Moment {

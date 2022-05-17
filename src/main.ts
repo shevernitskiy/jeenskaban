@@ -3,7 +3,6 @@ import TelegramBot from 'node-telegram-bot-api'
 import fs from 'fs'
 import Logger from './core/logger'
 import Moderation from './skills/moderation'
-import { IConfig } from './types/interfaces'
 
 Logger.sys('bot starting...')
 Logger.sys('telegram token', process.env.TELEGRAM)

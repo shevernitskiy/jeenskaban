@@ -1,5 +1,3 @@
-import { ILogger } from '../types/interfaces'
-
 class Logger implements ILogger {
   log = (title: string, value?: string | number): void => {
     console.info(`💡 ${title}${value ? ` › ${value}` : ''}`)
