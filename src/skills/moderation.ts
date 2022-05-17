@@ -86,7 +86,10 @@ export default class Moderation {
         })
         this.loadPermissions(this._chatId).then((res) => {
           this._permissions = res
-          this._bot.sendMessage(ctx.chat.id, `Разрешения по-умолчанию: ${JSON.stringify(this._permissions)}`, { ...options, parse_mode: 'HTML' })
+          this._bot.sendMessage(ctx.chat.id, `Разрешения по-умолчанию: ${JSON.stringify(this._permissions)}`, {
+            ...options,
+            parse_mode: 'HTML',
+          })
         })
       }
 
@@ -99,9 +102,9 @@ export default class Moderation {
               ctx.chat.id,
               [
                 `🔨 ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} забанен`,
-                `${reason.length > 1 ? 'Причина: ' + ctx.text.replace(reason[0], '').trim() : 'Без причины'}`
+                `${reason.length > 1 ? 'Причина: ' + ctx.text.replace(reason[0], '').trim() : 'Без причины'}`,
               ].join('\n'),
-              options
+              options,
             )
           } else {
             this._bot.sendMessage(ctx.chat.id, `Что-то пошло не так`, options)
@@ -129,9 +132,9 @@ export default class Moderation {
               [
                 `🤐 ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} замьючен`,
                 `${reason.length > 0 ? `Причина: ${reason}` : 'Без причины'}`,
-                `${until > moment().unix() ? `На: ${ctx.text.split(' ')[1]}` : 'Навсегда'}`
+                `${until > moment().unix() ? `На: ${ctx.text.split(' ')[1]}` : 'Навсегда'}`,
               ].join('\n'),
-              options
+              options,
             )
           } else {
             this._bot.sendMessage(ctx.chat.id, `Что-то пошло не так`, options)
@@ -142,7 +145,11 @@ export default class Moderation {
       if (ctx.text.startsWith('/unban') && ctx.reply_to_message != undefined) {
         this.unban(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id).then((result) => {
           if (result) {
-            this._bot.sendMessage(ctx.reply_to_message.chat.id, [`🛡️ ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} разбанен`].join('\n'), options)
+            this._bot.sendMessage(
+              ctx.reply_to_message.chat.id,
+              [`🛡️ ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} разбанен`].join('\n'),
+              options,
+            )
           } else {
             this._bot.sendMessage(ctx.chat.id, `Что-то пошло не так`, options)
           }
@@ -152,7 +159,11 @@ export default class Moderation {
       if (ctx.text.startsWith('/unmute') && ctx.reply_to_message != undefined) {
         this.unmute(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id, this._permissions).then((result) => {
           if (result) {
-            this._bot.sendMessage(ctx.reply_to_message.chat.id, [`🛡️ ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} размьючен`].join('\n'), options)
+            this._bot.sendMessage(
+              ctx.reply_to_message.chat.id,
+              [`🛡️ ${ctx.reply_to_message.from.username || ctx.reply_to_message.from.id} размьючен`].join('\n'),
+              options,
+            )
           } else {
             this._bot.sendMessage(ctx.chat.id, `Что-то пошло не так`, options)
           }
@@ -219,7 +230,7 @@ export default class Moderation {
       can_pin_messages: false,
       can_send_other_messages: false,
       can_send_polls: false,
-      until_date: until
+      until_date: until,
     })
   }
 
@@ -242,7 +253,7 @@ export default class Moderation {
         can_change_info: true,
         can_pin_messages: true,
         can_send_other_messages: true,
-        can_send_polls: true
+        can_send_polls: true,
       }
     }
 
@@ -296,8 +307,8 @@ export default class Moderation {
       .post(`https://api.telegram.org/bot${token}/getMyCommands`, {
         scope: {
           type: type,
-          chat_id: chatId
-        }
+          chat_id: chatId,
+        },
       })
       .then(({ data }) => {
         const out = [`Скоуп: <b>${type}</b> | <b>${chatId}</b>`]
@@ -315,14 +326,19 @@ export default class Moderation {
       })
   }
 
-  async setCommands(token: string, chatId: number, type: 'chat' | 'chat_administrators', commands: TelegramBot.BotCommand[]): Promise<boolean> {
+  async setCommands(
+    token: string,
+    chatId: number,
+    type: 'chat' | 'chat_administrators',
+    commands: TelegramBot.BotCommand[],
+  ): Promise<boolean> {
     return axios
       .post(`https://api.telegram.org/bot${token}/setMyCommands`, {
         scope: {
           type: type,
-          chat_id: chatId
+          chat_id: chatId,
         },
-        commands: commands
+        commands: commands,
       })
       .then(({ data }) => {
         if (data.ok) {
