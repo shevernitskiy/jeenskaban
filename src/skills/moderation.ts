@@ -90,15 +90,6 @@ export default class Moderation {
         })
       }
 
-      const name =
-        ctx.reply_to_message.from.first_name && ctx.reply_to_message.from.last_name
-          ? ctx.reply_to_message.from.first_name + ' ' + ctx.reply_to_message.from.last_name
-          : false ||
-            ctx.reply_to_message.from.first_name ||
-            ctx.reply_to_message.from.last_name ||
-            ctx.reply_to_message.from.username ||
-            ctx.reply_to_message.from.id
-
       if (ctx.text.startsWith('/ban') && ctx.reply_to_message != undefined) {
         const reason = ctx.text.split(' ')
 
@@ -107,7 +98,7 @@ export default class Moderation {
             this._bot.sendMessage(
               ctx.chat.id,
               [
-                `🔨 [${name}](tg://user?id=${ctx.reply_to_message.from.id}) забанен`,
+                `🔨 [${this.parseReadableName(ctx)}](tg://user?id=${ctx.reply_to_message.from.id}) забанен`,
                 `${reason.length > 1 ? 'Причина: ' + ctx.text.replace(reason[0], '').trim() : 'Без причины'}`,
               ].join('\n'),
               options,
@@ -136,7 +127,7 @@ export default class Moderation {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
               [
-                `🤐 [${name}](tg://user?id=${ctx.reply_to_message.from.id}) замьючен`,
+                `🤐 [${this.parseReadableName(ctx)}](tg://user?id=${ctx.reply_to_message.from.id}) замьючен`,
                 `${reason.length > 0 ? `Причина: ${reason.join(' ').trim()}` : 'Без причины'}`,
                 `${until > moment().unix() ? `На: ${ctx.text.split(' ')[1]}` : 'Навсегда'}`,
               ].join('\n'),
@@ -153,7 +144,7 @@ export default class Moderation {
           if (result) {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
-              [`🛡️ [${name}](tg://user?id=${ctx.reply_to_message.from.id}) разбанен`].join('\n'),
+              [`🛡️ [${this.parseReadableName(ctx)}](tg://user?id=${ctx.reply_to_message.from.id}) разбанен`].join('\n'),
               options,
             )
           } else {
@@ -167,7 +158,7 @@ export default class Moderation {
           if (result) {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
-              [`🛡️ [${name}](tg://user?id=${ctx.reply_to_message.from.id}) размьючен`].join('\n'),
+              [`🛡️ [${this.parseReadableName(ctx)}](tg://user?id=${ctx.reply_to_message.from.id}) размьючен`].join('\n'),
               options,
             )
           } else {
@@ -218,6 +209,16 @@ export default class Moderation {
     })
 
     return date
+  }
+
+  parseReadableName(ctx: TelegramBot.Message): string {
+    return ctx.reply_to_message?.from.first_name && ctx.reply_to_message?.from.last_name
+      ? ctx.reply_to_message?.from.first_name + ' ' + ctx.reply_to_message?.from.last_name
+      : false ||
+          ctx.reply_to_message?.from.first_name ||
+          ctx.reply_to_message?.from.last_name ||
+          ctx.reply_to_message?.from.username ||
+          String(ctx.reply_to_message?.from.id)
   }
 
   async mute(userId: UserId, chatId: ChatId, clearId?: MessageId, until = 0): Promise<boolean> {
