@@ -98,6 +98,7 @@ export default class Moderation {
             ctx.reply_to_message.from.last_name ||
             ctx.reply_to_message.from.username ||
             ctx.reply_to_message.from.id
+
       if (ctx.text.startsWith('/ban') && ctx.reply_to_message != undefined) {
         const reason = ctx.text.split(' ')
 
@@ -136,7 +137,7 @@ export default class Moderation {
               ctx.reply_to_message.chat.id,
               [
                 `🤐 [${name}](tg://user?id=${ctx.reply_to_message.from.id}) замьючен`,
-                `${reason.length > 0 ? `Причина: ${reason}` : 'Без причины'}`,
+                `${reason.length > 0 ? `Причина: ${reason.join(' ').trim()}` : 'Без причины'}`,
                 `${until > moment().unix() ? `На: ${ctx.text.split(' ')[1]}` : 'Навсегда'}`,
               ].join('\n'),
               options,
