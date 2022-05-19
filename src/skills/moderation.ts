@@ -6,21 +6,16 @@ import { UserId, ChatId, MessageId } from '../types/types'
 
 export default class Moderation {
   private readonly _tag = 'moderation'
-  private readonly _log: ILogger
-  private readonly _bot: TelegramBot
-  private readonly _chatId: ChatId
-  private readonly _token: string
-  private readonly _config: IConfig
   private _permissions: TelegramBot.ChatPermissions
   private _admins: UserId[]
 
-  constructor(bot: TelegramBot, config: IConfig, logger: ILogger, chatId: ChatId, token: string) {
-    this._bot = bot
-    this._log = logger
-    this._chatId = chatId
-    this._token = token
-    this._config = config
-
+  constructor(
+    private readonly _bot: TelegramBot,
+    private readonly _config: IConfig,
+    private readonly _log: ILogger,
+    private readonly _chatId: ChatId,
+    private readonly _token: string,
+  ) {
     this.init()
   }
 
@@ -178,11 +173,7 @@ export default class Moderation {
   }
 
   isUser(user: TelegramBot.User): boolean {
-    if (user.id != 777000 && user.is_bot != true) {
-      return true
-    } else {
-      return false
-    }
+    return user.id != 777000 && user.is_bot != true
   }
 
   isAdmin(userId: UserId): boolean {
