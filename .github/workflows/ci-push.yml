@@ -22,10 +22,17 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [14, 16]
+        os: [ubuntu-latest]
+        node_version: [14, 16, 18]
+        include:
+          - os: macos-latest
+            node_version: 16
+          - os: windows-latest
+            node_version: 16
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
