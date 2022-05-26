@@ -4,7 +4,7 @@
   "description": "Telegram Bot moderator for Jeens",
   "type": "module",
   "engines": {
-    "node": ">= 14 <17"
+    "node": ">= 14"
   },
   "devDependencies": {
     "@types/is-number": "^7.0.3",

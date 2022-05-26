@@ -44,7 +44,12 @@ export default class Moderation {
 
       /* ---------------------------- Rules on new post --------------------------- */
 
-      if (ctx.from.id == 777000 && ctx.from.first_name == 'Telegram' && ctx.is_automatic_forward == true) {
+      if (
+        ctx.from.id == 777000 &&
+        ctx.from.first_name == 'Telegram' &&
+        ctx.is_automatic_forward == true &&
+        (ctx.caption?.length > 0 || ctx.text?.length > 0)
+      ) {
         if (this._config.rules?.length > 0) {
           this._bot.sendMessage(ctx.chat.id, this._config.rules, { reply_to_message_id: ctx.message_id, parse_mode: 'Markdown' })
         }
