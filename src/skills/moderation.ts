@@ -93,7 +93,7 @@ export default class Moderation {
       if (ctx.text.startsWith('/ban') && ctx.reply_to_message != undefined) {
         const reason = ctx.text.split(' ')
 
-        this.ban(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id).then((result) => {
+        this.ban(this.chooseTargetId(ctx), ctx.chat.id, ctx.message_id).then((result) => {
           if (result) {
             this._bot.sendMessage(
               ctx.chat.id,
@@ -114,6 +114,18 @@ export default class Moderation {
         reason.shift()
         let until = 0
 
+        if (ctx.reply_to_message.from.id == 136817688 || ctx.reply_to_message.from.id == 777000) {
+          this._bot.sendMessage(
+            ctx.reply_to_message.chat.id,
+            `Похоже [${this.parseReadableName(ctx)}](tg://user?id=${this.chooseTargetId(
+              ctx,
+            )}) это канал, его можно только забанить/разбанить`,
+            options,
+          )
+          this._bot.deleteMessage(ctx.chat.id, String(ctx.message_id))
+          return
+        }
+
         if (reason.length > 0) {
           const match = reason[0]?.match(/([0-9]*д|[0-9]*ч|[0-9]*м)/gm)
           if (match !== null && match?.length > 0) {
@@ -122,7 +134,7 @@ export default class Moderation {
           }
         }
 
-        this.mute(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id, until).then((result) => {
+        this.mute(this.chooseTargetId(ctx), ctx.chat.id, ctx.message_id, until).then((result) => {
           if (result) {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
@@ -140,7 +152,7 @@ export default class Moderation {
       }
 
       if (ctx.text.startsWith('/unban') && ctx.reply_to_message != undefined) {
-        this.unban(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id).then((result) => {
+        this.unban(this.chooseTargetId(ctx), ctx.chat.id, ctx.message_id).then((result) => {
           if (result) {
             this._bot.sendMessage(
               ctx.reply_to_message.chat.id,
@@ -154,6 +166,18 @@ export default class Moderation {
       }
 
       if (ctx.text.startsWith('/unmute') && ctx.reply_to_message != undefined) {
+        if (ctx.reply_to_message.from.id == 136817688 || ctx.reply_to_message.from.id == 777000) {
+          this._bot.sendMessage(
+            ctx.reply_to_message.chat.id,
+            `Похоже [${this.parseReadableName(ctx)}](tg://user?id=${this.chooseTargetId(
+              ctx,
+            )}) это канал, его можно только забанить/разбанить`,
+            options,
+          )
+          this._bot.deleteMessage(ctx.chat.id, String(ctx.message_id))
+          return
+        }
+
         this.unmute(ctx.reply_to_message.from.id, ctx.chat.id, ctx.message_id, this._permissions).then((result) => {
           if (result) {
             this._bot.sendMessage(
@@ -207,10 +231,17 @@ export default class Moderation {
     return date
   }
 
+  chooseTargetId(ctx: TelegramBot.Message): ChatId {
+    return ctx.reply_to_message.from.id != 136817688 && ctx.reply_to_message.from.id != 777000
+      ? ctx.reply_to_message.from.id
+      : ctx.reply_to_message.sender_chat?.id
+  }
+
   parseReadableName(ctx: TelegramBot.Message): string {
     return ctx.reply_to_message?.from.first_name && ctx.reply_to_message?.from.last_name
       ? ctx.reply_to_message?.from.first_name + ' ' + ctx.reply_to_message?.from.last_name
       : false ||
+          ctx.reply_to_message.sender_chat?.title ||
           ctx.reply_to_message?.from.first_name ||
           ctx.reply_to_message?.from.last_name ||
           ctx.reply_to_message?.from.username ||
