@@ -2,8 +2,9 @@ import 'dotenv/config'
 import TelegramBot from 'node-telegram-bot-api'
 import fs from 'fs'
 import Logger from './core/logger'
-import Moderation from './skills/moderation'
 import { IConfig } from './types/interfaces'
+import Moderation from './skills/moderation'
+import Post from './skills/post'
 
 Logger.sys('bot starting...')
 Logger.sys('telegram token', process.env.TELEGRAM)
@@ -25,6 +26,7 @@ if (process.env.ADMINS) {
 
 const bot = new TelegramBot(process.env.TELEGRAM, { polling: true })
 const moderation = new Moderation(bot, Config, Logger, Number(process.env.CHAT), process.env.TELEGRAM)
+const post = new Post(bot, Config, Logger, Number(process.env.CHAT), Number(process.env.CHANNEL))
 
 bot.on('polling_error', (err) => {
   Logger.err('polling', err)
@@ -32,6 +34,11 @@ bot.on('polling_error', (err) => {
 
 bot.on('message', (ctx) => {
   moderation.input(ctx)
+  post.input(ctx)
+})
+
+bot.on('callback_query', (ctx) => {
+  post.callback(ctx)
 })
 
 bot.on('channel_post', (ctx) => {
